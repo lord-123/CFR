@@ -80,7 +80,7 @@ class CFRTrainer:
         for i in range(iterations):
             util += self.cfr(self.initialstate(), [1] * self.player_c)
             if i % 10000 ==0 and verbose:
-                print(f"i:  {i} {util}")
+                print(f"i:  {i}")
         return util
 
     def print_nodes(self):
