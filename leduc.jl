@@ -94,7 +94,7 @@ leduc = Game(
     2
 )
 
-t = CFRTrainer(leduc, Dict())
+#=t = CFRTrainer(leduc, Dict())
 iterations = 20000
 if length(ARGS) > 0
     iterations = parse(Int, ARGS[1])
@@ -107,3 +107,7 @@ println("running for ", iterations, " iterations")
 @time "time taken " total_value = train!(t, iterations, true)
 print_nodes(t)
 println("average game value: ", total_value/iterations)
+save_training_to_file(t, "leduc")
+=#
+t = load_training_from_file(leduc, "leduc")
+play_ai(t)

@@ -3,6 +3,8 @@ export CFR
 module CFR
 using Random
 using Printf
+using JLD2
+using FileIO
 
 export CFRTrainer
 export Node
@@ -10,6 +12,9 @@ export Game
 export train!
 export reset_nodes
 export print_nodes
+export save_training_to_file
+export load_training_from_file
+export play_ai
 
 normalise(v) = (s=sum(v); s>0 ? map(x -> x/s, v) : map(x -> 1/length(v), v))
 
@@ -121,6 +126,34 @@ function print_nodes(trainer)
         end
         println("]")
     end
+end
+
+function save_training_to_file(trainer, filename)
+    save(filename*".jld2", "data", trainer.node_map)
+end
+
+function load_training_from_file(game, filename)
+    node_map = load(filename*".jld2")["data"]
+    CFRTrainer(game, node_map)
+end
+
+get_action = (node) -> findfirst(cumsum(get_avg_strategy(node)).>=rand())
+
+function play_ai(trainer)
+    state = trainer.game.initial_state()
+    while !trainer.game.is_terminal(state)
+        println("current player: ", state.current_player)
+        if state.current_player == 1
+            action = state.actions[get_action(trainer.node_map[trainer.game.get_representation(state)])]
+        else
+            println("game state: ", trainer.game.get_representation(state))
+            print("choose an action: ", state.actions, " ")
+            action = state.actions[parse(Int, readline())]
+        end
+        println("player ", state.current_player, " ", action)
+        state = trainer.game.handle_action(state, action)
+    end
+    println("utility: ", trainer.game.get_utility(state))
 end
 
 end
