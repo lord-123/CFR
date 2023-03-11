@@ -5,6 +5,7 @@ using Random
 using Printf
 
 export CFRTrainer
+export Node
 export Game
 export train!
 export reset_nodes
@@ -59,8 +60,9 @@ end
 
 function get_node(trainer, state)
     infoset = trainer.game.get_representation(state)
-    node = get(trainer.node_map, infoset, nothing)
-    if node == nothing
+    if haskey(trainer.node_map, infoset)
+        node = trainer.node_map[infoset]
+    else
         node = create_node(infoset, state.actions)
         trainer.node_map[infoset] = node
     end
@@ -72,6 +74,10 @@ get_cf_reach_prob(probs, player) = prod(probs[1:player-1])*prod(probs[player+1:e
 function cfr!(trainer, state, probabilities)
     if trainer.game.is_terminal(state)
         return trainer.game.get_utility(state)
+    end
+
+    if probabilities[state.current_player] < 0.001
+        return 0
     end
 
     node = get_node(trainer, state)
